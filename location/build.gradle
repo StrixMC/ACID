@@ -1,0 +1,16 @@
+plugins {
+    id 'java'
+}
+
+group 'com.strixmc.acid'
+version '1.0.0'
+
+repositories {
+    mavenCentral()
+    mavenLocal()
+    maven { url 'https://repo.codemc.io/repository/nms' }
+}
+
+dependencies {
+    compileOnly 'org.spigotmc:spigot:1.8.8-R0.1-SNAPSHOT'
+}

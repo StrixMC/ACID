@@ -1,0 +1,17 @@
+plugins {
+    id 'java'
+}
+
+group 'com.strixmc.acid'
+version '1.0.0'
+
+repositories {
+    mavenCentral()
+    mavenLocal()
+    maven { url 'https://oss.sonatype.org/content/repositories/snapshot' }
+}
+
+dependencies {
+    compileOnly project(":messages")
+    compileOnly 'org.spigotmc:spigot:1.8.8-R0.1-SNAPSHOT'
+}

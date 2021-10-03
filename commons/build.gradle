@@ -1,0 +1,15 @@
+plugins {
+    id 'java'
+}
+
+group 'com.strixmc.acid'
+version '1.0.0'
+
+repositories {
+    mavenCentral()
+    mavenLocal()
+}
+
+dependencies {
+    compileOnly group: 'javax.inject', name: 'javax.inject', version: '1'
+}

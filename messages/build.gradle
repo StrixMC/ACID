@@ -1,0 +1,19 @@
+plugins {
+    id 'java'
+}
+
+group 'com.strixmc.acid'
+version '1.0.0'
+
+repositories {
+    mavenCentral()
+    mavenLocal()
+    maven { url 'https://repo.codemc.io/repository/nms/' }
+    maven { url 'https://repo.codemc.io/repository/maven-public/' }
+}
+
+dependencies {
+    compileOnly 'org.projectlombok:lombok:1.18.20'
+    compileOnly 'org.spigotmc:spigot:1.8.8-R0.1-SNAPSHOT'
+    compileOnly 'net.md-5:bungeecord-api:1.17-R0.1-SNAPSHOT'
+}
