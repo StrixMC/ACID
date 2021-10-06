@@ -5,4 +5,5 @@ include 'messages'
 include 'location'
 include 'custom-events'
 include 'items'
+include 'commands'
 

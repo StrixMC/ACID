@@ -7,10 +7,13 @@ import org.bukkit.event.HandlerList;
 
 public class BaseEvent extends Event {
 
-    @Getter
     private static final HandlerList handlers = new HandlerList();
 
     public static HandlerList getHandlerList() {
+        return handlers;
+    }
+
+    public HandlerList getHandlers() {
         return handlers;
     }
 
