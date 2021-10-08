@@ -1,5 +1,7 @@
 plugins {
     id 'java'
+    id 'idea'
+    id 'maven-publish'
 }
 
 group 'com.strixmc.acid'
@@ -9,11 +11,14 @@ repositories {
     mavenCentral()
 }
 
-dependencies {
-    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.7.0'
-    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.7.0'
-}
+publishing {
+    publications {
+        maven(MavenPublication) {
+            groupId = 'com.strixmc'
+            artifactId = 'acid'
+            version = '1.0.0'
 
-test {
-    useJUnitPlatform()
+            from components.java
+        }
+    }
 }
