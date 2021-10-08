@@ -1,9 +1,6 @@
 rootProject.name = 'ACID'
-include 'commons'
-include 'player'
-include 'messages'
-include 'location'
-include 'custom-events'
-include 'items'
-include 'commands'
+
+['commons', 'player', 'messages', 'location', 'custom-events', 'items', 'commands', 'files'].forEach(it -> {
+    include(it)
+})
 
