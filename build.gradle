@@ -1,24 +1,25 @@
 plugins {
     id 'java'
-    id 'idea'
-    id 'maven-publish'
+    id("maven-publish")
 }
 
 group 'com.strixmc.acid'
 version '1.0.0'
 
-repositories {
-    mavenCentral()
-}
 
-publishing {
-    publications {
-        maven(MavenPublication) {
-            groupId = 'com.strixmc'
-            artifactId = 'acid'
-            version = '1.0.0'
+subprojects {
+    apply plugin: 'java'
+    apply plugin: 'maven-publish'
 
-            from components.java
-        }
+    sourceCompatibility = 1.8 // java 8
+    targetCompatibility = 1.8
+
+    task sourcesJar(type: Jar, dependsOn: classes) {
+        classifier = 'sources'
+        from sourceSets.main.allSource
+    }
+
+    artifacts {
+        archives sourcesJar
     }
 }
