@@ -14,3 +14,15 @@ repositories {
 dependencies {
     compileOnly 'org.spigotmc:spigot-api:1.8.8-R0.1-SNAPSHOT'
 }
+
+publishing {
+    publications {
+        maven(MavenPublication) {
+            groupId = 'com.strixmc.acid'
+            artifactId = 'player'
+            version = '1.0.0'
+
+            from components.java
+        }
+    }
+}
