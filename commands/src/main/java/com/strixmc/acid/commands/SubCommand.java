@@ -1,11 +1,13 @@
 package com.strixmc.acid.commands;
 
+import com.strixmc.acid.messages.MessageUtils;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.StringJoiner;
 
 
 public interface SubCommand {
@@ -24,7 +26,7 @@ public interface SubCommand {
     }
 
     /**
-     * Returns description of this subCommand if exist.
+     * Returns sub-command description if it exists.
      *
      * @return The description.
      */
@@ -38,6 +40,13 @@ public interface SubCommand {
      * @return The syntax.
      */
     default String getSyntax() {
+        if (getArgsCount() > 0) {
+            StringJoiner joiner = new StringJoiner(" ", " ", "");
+            for (int i = 0; i < getArgsCount(); i++) {
+                joiner.add("arg" + i + 1);
+            }
+            return getName() + joiner;
+        }
         return getName();
     }
 
@@ -57,7 +66,14 @@ public interface SubCommand {
         return null;
     }
 
-    default boolean hasAccess(CommandSender sender){
+    /**
+     * @return No permission message.
+     */
+    default String getPermissionMessage() {
+        return "You have no permission access to " + getName() + " command";
+    }
+
+    default boolean hasAccess(CommandSender sender) {
         // If sender is console access is granted.
         if (!(sender instanceof Player)) return true;
         // If command doesn't require admin permissions access is granted.
@@ -73,10 +89,12 @@ public interface SubCommand {
     }
 
     default boolean testPermission(CommandSender sender) {
-        if (!hasAccess(sender)){
-            sender.sendMessage("No Permission.");
+        if (!sender.hasPermission(getPermission())) {
+            sender.sendMessage(MessageUtils.translate(getPermissionMessage()));
+            return false;
         }
-        return true;
+
+        return false;
     }
 
     /**

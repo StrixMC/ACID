@@ -35,6 +35,10 @@ public abstract class MainCommand implements TabExecutor {
             /* If help sub-command exits is tested for access. */
             if (helpSC != null) {
                 if (helpSC.hasAccess(sender)) {
+                    /* Player have access to sub-command but doesn't have permissions tu run it.*/
+                    if (!helpSC.testPermission(sender)) return true;
+
+                    /* Run help sub-command. */
                     helpSC.execute(sender, label, args);
                 }
                 return true;
@@ -47,22 +51,19 @@ public abstract class MainCommand implements TabExecutor {
         /* If sub-command doesn't exist code doesn't continue. */
         if (subCommand == null) return true;
 
+        /* If sender doesn't have access to sub-command code doesn't continue. */
+        if (!subCommand.hasAccess(sender)) {
+            if (!subCommand.testPermission(sender)) return true;
+        }
+
         /* If sub-command require a player */
         if (subCommand.requirePlayer() && !(sender instanceof Player)) {
             sender.sendMessage("This command cannot be used in console.");
             return true;
         }
 
-        /* If sender doesn't have access to sub-command code doesn't continue. */
-        if (!subCommand.hasAccess(sender)) return true;
-
         /* If current arguments are less than needed this is checked. */
         if (args.length < subCommand.getArgsCount()) {
-            if (subCommand.getSyntax() == null) {
-                sender.sendMessage("[Orion] SubCommand syntax is not set!");
-                return true;
-            }
-
             sender.sendMessage(StringUtils.replace(subCommand.getSyntax(), new Placeholder("$command", label)));
             return true;
         }
@@ -136,24 +137,30 @@ public abstract class MainCommand implements TabExecutor {
         cmd.setTabCompleter(this);
     }
 
+    /**
+     * Adds sub-command to sub-commands set collection.
+     *
+     * @param subCommand SubCommand to add.
+     */
     private void addSubCommand(SubCommand subCommand) {
         this.subCommands.add(subCommand);
     }
 
     /**
-     * Adds all subCommands to the subCommands set.
+     * Adds all specified sub-commands to the subCommands set collection.
+     *
+     * @param subCommands Specified sub-commands.
      */
     public void registerSubCommands(SubCommand... subCommands) {
         Arrays.stream(subCommands).forEach(this::addSubCommand);
     }
 
     /**
-     * Returns the help subcommand from subCommands set. By default returns subCommand named "help".
+     * Returns the help sub-command from subCommands set. By default, returns subCommand named "help".
      *
-     * @return the help subCommand.
+     * @return the help sub-command.
      */
     protected SubCommand getHelpSubCommand() {
-        /* Return subCommand named "help". */
         return subCommands.stream().filter(sc -> sc.getName().equalsIgnoreCase("help")).findAny().orElse(null);
     }
 
