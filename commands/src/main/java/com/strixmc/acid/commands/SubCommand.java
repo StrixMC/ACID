@@ -1,6 +1,7 @@
 package com.strixmc.acid.commands;
 
 import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Player;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -56,20 +57,26 @@ public interface SubCommand {
         return null;
     }
 
-    default boolean testPermission(CommandSender sender) {
-        if (requireAdmin()) {
-            if (getPermission() == null) {
-                sender.sendMessage("[Orion] SubCommand require admin permission but this doesn't exist!");
-                return false;
-            }
-            if (sender.hasPermission(getPermission())) {
-                return true;
-            } else {
-                sender.sendMessage("No permissions!");
-                return false;
-            }
+    default boolean hasAccess(CommandSender sender){
+        // If sender is console access is granted.
+        if (!(sender instanceof Player)) return true;
+        // If command doesn't require admin permissions access is granted.
+        if (!requireAdmin()) return true;
+
+        // If sub-command doesn't have a permission access denied.
+        if (getPermission() == null) {
+            sender.sendMessage("[Orion] SubCommand require admin permission but this doesn't exist!");
+            return false;
         }
-        return false;
+
+        return sender.hasPermission(getPermission());
+    }
+
+    default boolean testPermission(CommandSender sender) {
+        if (!hasAccess(sender)){
+            sender.sendMessage("No Permission.");
+        }
+        return true;
     }
 
     /**

@@ -32,40 +32,44 @@ public abstract class MainCommand implements TabExecutor {
         if (args.length == 0) {
             SubCommand helpSC = getHelpSubCommand();
 
+            /* If help sub-command exits is tested for access. */
             if (helpSC != null) {
-                if (helpSC.testPermission(sender)) {
+                if (helpSC.hasAccess(sender)) {
                     helpSC.execute(sender, label, args);
-                    return true;
                 }
+                return true;
             }
         }
 
         /* Gets the subcommand by the name in first argument. Or help, if the subCommand doesn't exist. */
         SubCommand subCommand = getSubCommandByAliasOrName(args[0]);
 
-        if (subCommand == null) return false;
+        /* If sub-command doesn't exist code doesn't continue. */
+        if (subCommand == null) return true;
+
+        /* If sub-command require a player */
         if (subCommand.requirePlayer() && !(sender instanceof Player)) {
             sender.sendMessage("This command cannot be used in console.");
-            return false;
+            return true;
         }
 
-        if (!subCommand.testPermission(sender)) {
-            return false;
-        }
+        /* If sender doesn't have access to sub-command code doesn't continue. */
+        if (subCommand.hasAccess(sender)) return true;
 
+        /* If current arguments are less than needed this is checked. */
         if (args.length < subCommand.getArgsCount()) {
             if (subCommand.getSyntax() == null) {
                 sender.sendMessage("[Orion] SubCommand syntax is not set!");
-                return false;
+                return true;
             }
 
             sender.sendMessage(StringUtils.replace(subCommand.getSyntax(), new Placeholder("$command", label)));
-            return false;
+            return true;
         }
 
         /* Execute subcommand. */
         subCommand.execute(sender, label, Arrays.copyOfRange(args, 1, args.length));
-        return true;
+        return false;
     }
 
     private SubCommand getSubCommandByAliasOrName(String arg) {
@@ -82,9 +86,11 @@ public abstract class MainCommand implements TabExecutor {
         /* Return if there is nothing to tab complete. */
         if (args.length == 0) return null;
 
-        /* If it's the first argument, that means that a subCommands need to be tab completed. */
+        /* If it's the first argument, that means that a subCommand need to be completed. */
         if (args.length == 1) {
-            List<String> subCommandsTC = subCommands.stream().map(SubCommand::getName).collect(Collectors.toList());
+            /* Filtered list with sub-command suggestions that player has access. */
+            List<String> subCommandsTC = subCommands.stream().filter(sc -> sc.hasAccess(sender)).map(SubCommand::getName).collect(Collectors.toList());
+            //List<String> subCommandsTC = subCommands.stream().map(SubCommand::getName).collect(Collectors.toList());
             //List<String> subCommandsTC = subCommands.stream().filter(sc -> (sc.requireAdmin() && (sc.getPermission() != null && sender.hasPermission(sc.getPermission())))).map(SubCommand::getName).collect(Collectors.toList());
             return getMatchingStrings(subCommandsTC, args[args.length - 1], argumentMatcher);
         }
