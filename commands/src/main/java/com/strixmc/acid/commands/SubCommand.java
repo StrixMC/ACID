@@ -89,12 +89,14 @@ public interface SubCommand {
     }
 
     default boolean testPermission(CommandSender sender) {
-        if (!sender.hasPermission(getPermission())) {
-            sender.sendMessage(MessageUtils.translate(getPermissionMessage()));
-            return false;
+        if (sender instanceof Player){
+            if (!sender.hasPermission(getPermission())) {
+                sender.sendMessage(MessageUtils.translate(getPermissionMessage()));
+                return false;
+            }
         }
 
-        return false;
+        return true;
     }
 
     /**

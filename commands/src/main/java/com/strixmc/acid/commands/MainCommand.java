@@ -34,13 +34,13 @@ public abstract class MainCommand implements TabExecutor {
 
             /* If help sub-command exits is tested for access. */
             if (helpSC != null) {
-                if (helpSC.hasAccess(sender)) {
-                    /* Player have access to sub-command but doesn't have permissions tu run it.*/
+                if (!helpSC.hasAccess(sender)) {
+                    /* Check if sender doesn't have permissions tu run the sub-command.*/
                     if (!helpSC.testPermission(sender)) return true;
-
-                    /* Run help sub-command. */
-                    helpSC.execute(sender, label, args);
                 }
+
+                /* Run help sub-command. */
+                helpSC.execute(sender, label, args);
                 return true;
             }
         }
