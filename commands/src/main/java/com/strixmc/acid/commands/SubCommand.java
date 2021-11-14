@@ -74,16 +74,18 @@ public interface SubCommand {
     }
 
     default boolean hasAccess(CommandSender sender) {
-        // If sender is console access is granted.
-        if (!(sender instanceof Player)) return true;
         // If command doesn't require admin permissions access is granted.
         if (!requireAdmin()) return true;
+        // If sender is console access is granted.
+        if (!requirePlayer() || !(sender instanceof Player)) return true;
+        // If permission it not null and player has permission access is granted.
+        if (getPermission() != null && sender.hasPermission(getPermission())) return true;
 
         return false;
     }
 
     default boolean testPermission(CommandSender sender) {
-        if (sender instanceof Player){
+        if (sender instanceof Player) {
             // If sub-command doesn't have a permission access denied.
             if (getPermission() == null) {
                 sender.sendMessage("[Orion] SubCommand require admin permission but this doesn't exist!");
