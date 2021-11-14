@@ -77,7 +77,7 @@ public interface SubCommand {
         // If command doesn't require admin permissions access is granted.
         if (!requireAdmin()) return true;
         // If sender is console access is granted.
-        if (!requirePlayer() || !(sender instanceof Player)) return true;
+        if (!(sender instanceof Player)) return true;
         // If permission it not null and player has permission access is granted.
         if (getPermission() != null && sender.hasPermission(getPermission())) return true;
 
