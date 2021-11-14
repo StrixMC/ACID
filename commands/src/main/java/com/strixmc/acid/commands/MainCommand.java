@@ -54,7 +54,7 @@ public abstract class MainCommand implements TabExecutor {
         }
 
         /* If sender doesn't have access to sub-command code doesn't continue. */
-        if (subCommand.hasAccess(sender)) return true;
+        if (!subCommand.hasAccess(sender)) return true;
 
         /* If current arguments are less than needed this is checked. */
         if (args.length < subCommand.getArgsCount()) {
