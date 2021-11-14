@@ -79,17 +79,17 @@ public interface SubCommand {
         // If command doesn't require admin permissions access is granted.
         if (!requireAdmin()) return true;
 
-        // If sub-command doesn't have a permission access denied.
-        if (getPermission() == null) {
-            sender.sendMessage("[Orion] SubCommand require admin permission but this doesn't exist!");
-            return false;
-        }
-
-        return sender.hasPermission(getPermission());
+        return false;
     }
 
     default boolean testPermission(CommandSender sender) {
         if (sender instanceof Player){
+            // If sub-command doesn't have a permission access denied.
+            if (getPermission() == null) {
+                sender.sendMessage("[Orion] SubCommand require admin permission but this doesn't exist!");
+                return false;
+            }
+
             if (!sender.hasPermission(getPermission())) {
                 sender.sendMessage(MessageUtils.translate(getPermissionMessage()));
                 return false;
