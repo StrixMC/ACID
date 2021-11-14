@@ -1,6 +1,6 @@
 rootProject.name = 'ACID'
 
-['commons', 'player', 'messages', 'location', 'custom-events', 'items', 'commands', 'files'].forEach(it -> {
+['commons', 'player', 'messages', 'location', 'custom-events', 'items', 'commands', 'files', 'time'].forEach(it -> {
     include(it)
 })
 

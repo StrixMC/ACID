@@ -16,9 +16,7 @@ public class FileCreator extends YamlConfiguration {
     public FileCreator(Plugin plugin, String filename, File folder) {
         this.plugin = plugin;
         this.fileName = filename + (filename.endsWith(".yml") ? "" : ".yml");
-        if (!folder.exists()) {
-            folder.mkdir();
-        }
+        if (!folder.exists()) folder.mkdir();
         this.file = new File(folder, this.fileName);
         this.createFile();
     }
@@ -28,7 +26,11 @@ public class FileCreator extends YamlConfiguration {
     }
 
     public FileCreator(Plugin plugin, String fileName, String filePath) {
-        this(plugin, fileName, new File(plugin.getDataFolder().getAbsolutePath() + "/" + filePath));
+        this(plugin, fileName, new File(plugin.getDataFolder().getAbsolutePath() + File.separator + filePath));
+    }
+
+    public String getFileName() {
+        return file.getName();
     }
 
     private void createFile() {

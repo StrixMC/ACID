@@ -36,7 +36,7 @@ public interface SubCommand {
      *
      * @return The syntax.
      */
-    default String getSyntax(){
+    default String getSyntax() {
         return getName();
     }
 
@@ -54,6 +54,22 @@ public interface SubCommand {
      */
     default String getPermission() {
         return null;
+    }
+
+    default boolean testPermission(CommandSender sender) {
+        if (requireAdmin()) {
+            if (getPermission() == null) {
+                sender.sendMessage("[Orion] SubCommand require admin permission but this doesn't exist!");
+                return false;
+            }
+            if (sender.hasPermission(getPermission())) {
+                return true;
+            } else {
+                sender.sendMessage("No permissions!");
+                return false;
+            }
+        }
+        return false;
     }
 
     /**

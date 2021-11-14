@@ -1,7 +1,6 @@
 package com.strixmc.acid.commands;
 
 import com.strixmc.acid.commands.argumentmatcher.StartingWithStringArgumentMatcher;
-import com.strixmc.acid.messages.MessageUtils;
 import com.strixmc.acid.messages.Placeholder;
 import com.strixmc.acid.messages.StringUtils;
 import org.bukkit.command.Command;
@@ -17,38 +16,14 @@ import java.util.stream.Collectors;
 public abstract class MainCommand implements TabExecutor {
 
     protected final Set<SubCommand> subCommands = new HashSet<>();
-    protected final String noPermMessage;
     protected final ArgumentMatcher argumentMatcher;
 
     public MainCommand() {
-        this("No permission.", new StartingWithStringArgumentMatcher());
+        this(new StartingWithStringArgumentMatcher());
     }
 
-    public MainCommand(String noPermMessage) {
-        this(noPermMessage, new StartingWithStringArgumentMatcher());
-    }
-
-    public MainCommand(String noPermissionMessage, ArgumentMatcher argumentMatcher) {
-        this.noPermMessage = MessageUtils.translate(noPermissionMessage);
+    public MainCommand(ArgumentMatcher argumentMatcher) {
         this.argumentMatcher = argumentMatcher;
-    }
-
-    /**
-     * Returns a new list of tabCompletions based on unfinished argument filtered by selected ArgumentMatcher.
-     *
-     * @param tabCompletions  The source tabCompletions.
-     * @param arg             The argument string.
-     * @param argumentMatcher The ArgumentMather.
-     * @return A list of new tabCompletions.
-     */
-    private static List<String> getMatchingStrings(List<String> tabCompletions, String arg, ArgumentMatcher argumentMatcher) {
-        if (tabCompletions == null || arg == null) return null;
-
-        List<String> result = argumentMatcher.filter(tabCompletions, arg);
-
-        Collections.sort(result);
-
-        return result;
     }
 
     @Override
@@ -57,18 +32,16 @@ public abstract class MainCommand implements TabExecutor {
         if (args.length == 0) {
             SubCommand helpSC = getHelpSubCommand();
 
-            helpSC.execute(sender, label, args);
-/*
-            if (helpSC != null && (helpSC.requireAdmin() && sender.hasPermission(helpSC.getPermission()))) {
-                return true;
+            if (helpSC != null) {
+                if (helpSC.testPermission(sender)) {
+                    helpSC.execute(sender, label, args);
+                    return true;
+                }
             }
-*/
-            return true;
         }
 
         /* Gets the subcommand by the name in first argument. Or help, if the subCommand doesn't exist. */
-        SubCommand subCommand = subCommands.stream().filter(sc -> sc.getName().equalsIgnoreCase(args[0]) || (!sc.getAliases().isEmpty() && sc.getAliases().contains(args[0]))).findAny().orElse(getHelpSubCommand());
-        //SubCommand subCommand = subCommands.stream().filter(sc -> sc.getName().equalsIgnoreCase(args[0])).findAny().orElse(getHelpSubCommand());
+        SubCommand subCommand = getSubCommandByAliasOrName(args[0]);
 
         if (subCommand == null) return false;
         if (subCommand.requirePlayer() && !(sender instanceof Player)) {
@@ -76,29 +49,32 @@ public abstract class MainCommand implements TabExecutor {
             return false;
         }
 
-        if (subCommand.requireAdmin()) {
-            if (subCommand.getPermission() == null) {
-                sender.sendMessage("[Orion] SubCommand require admin permission but this doesn't exist!");
-                return false;
-            }
-            if (!sender.hasPermission(subCommand.getPermission())) {
-                sender.sendMessage(noPermMessage);
-                return false;
-            }
+        if (!subCommand.testPermission(sender)) {
+            return false;
         }
 
         if (args.length < subCommand.getArgsCount()) {
-            if (subCommand.getPermission() == null) {
+            if (subCommand.getSyntax() == null) {
                 sender.sendMessage("[Orion] SubCommand syntax is not set!");
                 return false;
             }
+
             sender.sendMessage(StringUtils.replace(subCommand.getSyntax(), new Placeholder("$command", label)));
             return false;
         }
 
-        /* Execute command. */
+        /* Execute subcommand. */
         subCommand.execute(sender, label, Arrays.copyOfRange(args, 1, args.length));
         return true;
+    }
+
+    private SubCommand getSubCommandByAliasOrName(String arg) {
+        return subCommands.stream().filter(sc ->
+                        sc.getName().equalsIgnoreCase(arg) ||
+                                (!sc.getAliases().isEmpty() && sc.getAliases().stream().
+                                        anyMatch(alias -> alias.equalsIgnoreCase(arg)))).
+                findAny().
+                orElse(getHelpSubCommand());
     }
 
     @Override
@@ -123,6 +99,25 @@ public abstract class MainCommand implements TabExecutor {
     }
 
     /**
+     * Returns a new list of tabCompletions based on unfinished argument filtered by selected ArgumentMatcher.
+     *
+     * @param tabCompletions  The source tabCompletions.
+     * @param arg             The argument string.
+     * @param argumentMatcher The ArgumentMather.
+     * @return A list of new tabCompletions.
+     */
+    private static List<String> getMatchingStrings(List<String> tabCompletions, String arg, ArgumentMatcher argumentMatcher) {
+        if (tabCompletions == null || arg == null) return null;
+
+        List<String> result = argumentMatcher.filter(tabCompletions, arg);
+
+        Collections.sort(result);
+
+        return result;
+    }
+
+
+    /**
      * Registers the bukkit command.
      *
      * @param main    Main class of your plugin.
@@ -133,7 +128,6 @@ public abstract class MainCommand implements TabExecutor {
 
         cmd.setExecutor(this);
         cmd.setTabCompleter(this);
-        cmd.setPermissionMessage(noPermMessage);
     }
 
     private void addSubCommand(SubCommand subCommand) {
