@@ -84,24 +84,27 @@ public abstract class MainCommand implements TabExecutor {
 
     @Override
     public List<String> onTabComplete(CommandSender sender, Command command, String alias, String[] args) {
-        /* Return if there is nothing to tab complete. */
-        if (args.length == 0) return null;
+        /* Return an empty collection if there is nothing to tab complete. */
+        if (args.length == 0) return Collections.emptyList();
 
         /* If it's the first argument, that means that a subCommand need to be completed. */
         if (args.length == 1) {
             /* Filtered list with sub-command suggestions that player has access. */
             List<String> subCommandsTC = subCommands.stream().filter(sc -> sc.hasAccess(sender)).map(SubCommand::getName).collect(Collectors.toList());
-            //List<String> subCommandsTC = subCommands.stream().map(SubCommand::getName).collect(Collectors.toList());
-            //List<String> subCommandsTC = subCommands.stream().filter(sc -> (sc.requireAdmin() && (sc.getPermission() != null && sender.hasPermission(sc.getPermission())))).map(SubCommand::getName).collect(Collectors.toList());
             return getMatchingStrings(subCommandsTC, args[args.length - 1], argumentMatcher);
         }
 
-        /* Gets the subcommand by the name in first argument. */
+        /* Gets the subcommand by the name from first argument. */
         SubCommand subCommand = subCommands.stream().filter(sc -> sc.getName().equalsIgnoreCase(args[0])).findAny().orElse(null);
-        if (subCommand == null) return null;
+        /* Return an empty collection if sub-command does not exit. */
+        if (subCommand == null) return Collections.emptyList();
 
-        /* Gets the tabCompletion from the subCommand. */
+        /*
+        Gets the tabCompletion from the subCommand.
+        Args length is subtracted by 2 so sub-command index stats from 0.
+         */
         List<String> subCommandTB = subCommand.getTabCompletion(args.length - 2, args);
+        /* args[args.length - 1] it's the sub command. */
         return getMatchingStrings(subCommandTB, args[args.length - 1], argumentMatcher);
     }
 
@@ -122,7 +125,6 @@ public abstract class MainCommand implements TabExecutor {
 
         return result;
     }
-
 
     /**
      * Registers the bukkit command.
