@@ -23,6 +23,10 @@ public class Cooldown {
         this.notified = notified;
     }
 
+    public long getExpire() {
+        return expire;
+    }
+
     public void retimeCooldown(long duration) {
         this.duration = duration;
         this.start = System.currentTimeMillis();
@@ -55,6 +59,10 @@ public class Cooldown {
 
     public String getTimeLeftSeconds() {
         return TimeUtil.millisToSeconds(this.getRemaining());
+    }
+
+    public String getTimeLeftPlainSeconds() {
+        return TimeUtil.millisToPlainSeconds(this.getRemaining());
     }
 
     public String getTimeLeftTimer() {

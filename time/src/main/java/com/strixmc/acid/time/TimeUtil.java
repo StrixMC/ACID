@@ -27,6 +27,10 @@ public final class TimeUtil {
         return String.format(MINUTE_FORMAT, seconds / 60L, seconds % 60L);
     }
 
+    public static String millisToPlainSeconds(long millis) {
+        return String.valueOf(millis / 1000L);
+    }
+
     /**
      * Return the amount of seconds from milliseconds.
      * Note: We explicitly use 1000.0F (float) instead of 1000L (long).
